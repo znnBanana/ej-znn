@@ -1,0 +1,144 @@
+<style>
+	.btns {
+		margin-bottom: 5px;
+	}
+	.btn {
+		display: inline-block;
+		padding: .5em 1.5em;
+		border-radius: 3px;
+		background-color:teal;
+		color: #fff;
+		cursor: pointer;
+	}
+	table.table {
+		box-sizing: border-box;
+		width: 100%;
+		border-collapse: collapse;
+	}
+	table.table td,
+	table.table th {
+		border: 1px solid #ccc;
+		line-height: 2em;
+		text-align: center;
+	}
+	.none {
+		display: none;
+	}
+
+</style>
+
+	<div class="btns" >
+			<div class="btn" id="btn_batchdel">批量删除</div>
+			<div class="btn">导出</div>
+	</div>
+	<table class="table" id="order_tbl">
+		<thead>
+			<tr>
+				<th width="60px"><input type="checkbox"></th>
+				<th width="200px">顾客编号</th>
+				<th width="200px">地址编号</th>
+				<th width="200px">下单时间</th>
+				<th width="200px">员工编号</th>
+				<th width="200px">服务总数</th>
+				<th width="100px">操作</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr class="none">
+				<td><input type="checkbox"></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td>
+					<a class="btn_del" href="javascript:void(0);">删除</a>
+					<a class="btn_details" href="javascript:void(0);">详情</a>
+				</td>
+			</tr>
+		</tbody>
+	</table>
+
+
+	<script type="text/javascript" src="../js/me.js"></script>
+	<script>
+		var tbody = document.getElementsByTagName("tbody")[0];
+		console.log(tbody);
+		var baseURL =  "http://134.175.154.93:6677"
+
+		//初始化数据
+		/*
+		function initData(){
+			var url = baseURL+"/order/findAllOrder"
+			$("#order_del > tbody").empty();
+			response.data.forEach(function(item)){
+				var newTr = $(`<tr>
+				<td><input type="checkbox" value="`+item.id+`"></td>
+				<td>`+item.customerId+`</td>
+				<td>`+item.addressId+`</td>
+				<td>`+item.orderTime+`</td>
+				<td>`+item.waiterId+`</td>
+				<td>`+item.total+`</td>
+				<td>
+					<a class="btn_del" href="javascript:void(0);">删除</a>
+					<a class="btn_details" href="javascript:void(0);">详情</a>
+				</td>
+			</tr>`);
+			$("order_tbl > tbody").append(newTr);
+			};
+		};
+		*/
+
+		initData();
+		//初始化数据
+		function initData(){
+			var url = baseURL+"/order/findAllOrder";
+			$.get(url,function(response){
+				//将tbody中的数据清空掉
+				Array.prototype.slice.call(tbody.children,0).forEach(function(item,index){
+					if(index !== 0){
+						tbody.removeChild(item);
+					}
+				})
+				//遍历结果，将数据显示到页面中(渲染数据)
+				response.data.forEach(function(item){
+					//产生一个tr
+				var newTr = tbody.firstElementChild.cloneNode(true);
+				newTr.children[0].children[0].value = item.id;
+				newTr.children[1].innerHTML = "<stong>"+item.customerId+"</strong>";
+				newTr.children[2].innerHTML = "<stong>"+item.addressId+"</strong>";		
+				newTr.children[3].innerHTML = "<stong>"+item.orderTime+"</strong>";
+				newTr.children[4].innerHTML = "<stong>"+item.waiterId+"</strong>";	
+				newTr.children[5].innerHTML = "<stong>"+item.total+"</strong>";
+
+				newTr.className = "";
+				tbody.appendChild(newTr);
+				})
+			})
+		}
+
+		//为操作按钮绑定事件处理函数
+		tbody.onclick = function(event){
+			if(event.target.nodeName === "A"){
+				switch(event.target.className){
+					case "btn_del":
+						//获取当前的id
+						var id = event.target.parentNode.parentNode.children[0].children[0].value;
+						var url = baseURL+"/order/deleteOrderById";
+						var data = "id"+id;
+						$.post(url,data,function(result){
+							alert(result.message);
+							initData();
+						})
+						break;
+					case "btn_details":
+						//查看订单详情
+					   var id = event.target.parentNode.parentNode.children[0].children[0].value;
+
+
+
+				}
+			}
+		}
+
+	</script>
