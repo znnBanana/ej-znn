@@ -1,234 +1,232 @@
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>员工管理</title>
-<style>
-	.btn{
-		background-color: #4c4b4b;
-		display: inline-block;
-		padding:.3em 1.2em;
-		border-radius: 5px;
-		color: #fff;
-		margin-top: 10px;
-	}
-	table.table{
-		width: 100%;
-		border-collapse: collapse;
-		margin-top: 10px;
-	}
-	table.table th,table.table td{
-		border: 1px solid #ccc;
-		text-align: center;
-		line-height: 2em;
-	}
-	.btns div.current{
-		background-color: #ededed;
-		color: #333;
-	}
-	table.table tbody tr.current{
-		background-color: #ededed;
-	}
-	.none{
-		/*display: none;*/
-	}
-</style>
-<!-- 导入jQuery库 -->
-<script src="https://cdn.bootcss.com/jquery/3.4.1/jquery.min.js"></script>
+    <!-- <link href="https://cdn.bootcss.com/twitter-bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
+	<script src="https://cdn.bootcss.com/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://cdn.bootcss.com/twitter-bootstrap/4.3.1/js/bootstrap.min.js"></script> -->
 <script>
-    baseURL = "http://134.175.154.93:6677";
-    // ================为添加按钮绑定事件函数=====================
-    $(function(){
-    	// 当点击添加按钮的时候，将以下内容置位空
-    	$(".btns > #btn_add").on("click",function(){
-    		$(".forms input[name=id]").val('');
-    		$(".forms form tbody tr input[type=text]").val('');
-    		$(".forms form tbody tr input[type=textarea]").val('');
-    	})
+    var Myid;
+    var baseURL = "http://134.175.100.63:6677/";
+    // 关闭模态框
+    function closeModal(){
+        $(this).parents(".modal").modal("hide");
+    }
+    // ===================初始化数据================
+    function reloadData(){
+        var url = baseURL+"/waiter/findAll";
+        $.get(url,function(result){
+            if(result.status === 200){
+                $("#waiter_tbl > tbody").empty();
+                // 将tr追加到tbody中
+                result.data.forEach(function(item){
+                    $("#waiter_tbl > tbody").append(`<tr class="text-center">
+                        <td><input type="checkbox" value="`+item.id+`"></td>
+                        <td>`+item.phone+`</td>
+                        <td>`+item.realname+`</td>
+                        <td>`+item.telephone+`</td>
+                        <td>`+item.idcard+`</td>
+                        <td>`+item.status+`</td>
+                        <td>
+                            <a class="btn_del" href="javascript:void(0);">删除</a>
+                            <a class="btn_upd" href="javascript:void(0);">修改</a>
+                        </td>
+                    </tr>`);
+                })
+            }else{
+                alert("服务接口出错！");
+            }
+        });
+    }
+    // 调用reloadData函数
+    reloadData();
+    // / 初始化数据
 
-    	// 当鼠标放在当前按钮的时候，改变当前的颜色
-    	$(".btns").on("mouseover","div",function(){
-    		$(this).addClass('current');
-    	});
-    	// 当鼠标不再当前按钮时，还原
-    	$(".btns").on("mouseout","div",function(){
-    		$(this).removeClass('current');
-    	});
+    // ===================为添加按钮绑定事件========================
+    $(function(){
+        reloadData();
+        // 点击添加，弹出模态框
+        $(".btn_add").click(function(){
+            $("#waiterModal").modal("show");
+        })
+        // 监听模态框的关闭，模态框关闭时，表单重置
+        $("#waiterModal").on("hidden.bs.modal",function(){
+            $(this).find("form")[0].reset();
+        })
+    })
+    
+    // ===================提交模态框里的内容(保存或更新)=======================
+    function submitWaiter(){
+        url = baseURL+"/waiter/saveOrUpdate";
+        // 获取模态框里的数据
+        var realname = $("#waiter_form input[name=realname]").val();
+        var telephone = $("#waiter_form input[name=telephone]").val();
+        var idcard = $("#waiter_form input[name=idcard]").val();
+        // console.log(realname);
+        if(Myid){
+            var data = {
+                id:Myid,
+                realname:realname,
+                telephone:telephone,
+                idcard:idcard
+            }
+        }else{
+            var data = {
+            realname:realname,
+            // password:password,
+            telephone:telephone,
+            idcard:idcard
+            }
+        }
+        
+        // console.log(data);
+        $.post(url,data,function(result){
+            if(result.status === 200){
+                $("#waiterModal").modal("hide");
+                reloadData();
+            }else{
+                alert("接口异常");
+            }
+        })
+    }
+
+    // ========================为删除绑定事件====================
+    $(function(){
+        $("#waiter_tbl > tbody").on("click","a",function(){
+            // 删除
+            if(this.className == "btn_del"){
+                // console.log(this.className);
+                var id = $(this).parents("tr").find("td:nth-child(1)").find("input").val();
+                var url = baseURL+"/waiter/deleteById";
+                var data = "id="+id;
+                $.get(url,data,function(result){
+                    alert(result.message);
+                    reloadData();
+                })
+            }
+            // 修改
+            if(this.className == "btn_upd"){
+                // 获取浏览器端数据
+                Myid = $(this).parents("tr").find("td:nth-child(1)").find("input").val();
+                var realname = $(this).parents("tr").find("td:nth-child(3)").text();
+                var telephone = $(this).parents("tr").find("td:nth-child(4)").text();
+                var idcard = $(this).parents("tr").find("td:nth-child(5)").text();
+                console.log(realname);
+                // 
+                var url = baseURL+"/waiter/saveOrUpdate";
+                document.querySelector("#waiter_form input[id=input_realname]").value = realname;
+                document.querySelector("#waiter_form input[id=input_telephone]").value = telephone;
+                document.querySelector("#waiter_form input[id=input_idcard]").value = idcard;
+
+                $("#waiterModal").modal("show");
+                reloadData();
+            }
+        })
     })
 
-    // ================当鼠标放在当前行的时候，改变行的颜色==========
+    // =================批量删除================
     $(function(){
-    	$("table.table tbody").on("mouseover","tr",function(){
-    		$(this).addClass("current");
-    	});
-    	$("table.table tbody").on("mouseout","tr",function(){
-    		$(this).removeClass("current");
-    	});
+        var url = baseURL+"/waiter/batchDelete";
+        $(".btn_batch_del").click(function(){
+            var ids = $("input[type=checkbox]:checked").map(function(item,index){return $(index).val()}).toArray();
+            var data = "";
+            for(var index in ids){
+                var id = ids[index];
+                if(index == 0){
+                    data += "ids="+id;
+                }else{
+                    data += "&ids="+id;
+                }
+            }
+            // 与后台进行交互
+            $.post(url,data,function(result){
+                if(result.status === 200){
+                    alert("删除成功");
+                    reloadData();
+                }else{
+                    alert("接口异常");
+                }
+            })
+        })
     })
-	$(function(){
-	// ==========初始化数据，把后台数据渲染到浏览器端（查询）========	   
-	    function initData(){
-	    	$("#waiter_tbl > tbody").empty();
-			// 从后台获取地址
-			var url = "/waiter/findAllWaiter";
-			// 用get方式获取后台数据
-			// 在获取数据之前要把tbody中隐藏的一栏删掉
-			$(".none").remove();
-			$.get(baseURL+url,function(result){
-				result.data.forEach(function(item){
-					var newTr = $(`<tr>
-					<td><input type="checkbox">`+item.id+`</td>
-					<td>`+item.photo+`</td>
-					<td>`+item.realname+`</td>
-					<td>`+item.telephone+`</td>
-					<td>`+item.idcard+`</td>
-					<td>`+item.status+`</td>
-					<td>
-						<a class="btn_del" href="javascript:void(0);">删除</a>
-						<a class="btn_upd" href="javascript:void(0);">修改</a>
-						<a class="btn_info" href="javascript:void(0);">详情</a>
-					</td>
-				</tr>`);
-				// 把获取到的后台数据追加到tbody后
-				$("#waiter_tbl > tbody").append(newTr);
-				});
-			});
-		}
-		// 调用初始化数据函数
-		initData();
-	
-		// ===============为浏览器端动态添加数据（增）==================
-		$(function(){
-			// initData();
-		// 拿到浏览器端准备添加到的数据
-			$(".forms > form").on("submit",function(){
-				var id = $(this).find("input[name=id]").val();
-				var realname = $(this).find("tbody > tr:nth-child(1) > td > input[name=realname]").val();
-				var telephone = $(this).find("tbody > tr:nth-child(2) > td > input[name=telephone]").val();
-				var idcard = $(this).find("tbody > tr:nth-child(3) > td > input[name=idcard]").val();
-				var status = $(this).find("tbody > tr:nth-child(4) > td > input[name=status]").val();
-				console.log(id,realname,telephone,idcard,status)
-
-				// 把浏览器端数据放到后台再显示到浏览器端
-				var data;
-				if(id){
-					data = "id="+id+"&realname="+realname+"&telephone="+telephone+"&idcard="+idcard+"&status="+status;
-				}else{
-					data = "realname="+realname+"&telephone="+telephone+"&idcard="+idcard+"&status="+status;
-				}
-				console.log(data);
-				var url = "/waiter/insertWaiter";
-				// 利用封装的ajax实现前后台交互
-				$.post(baseURL+url,data,function(add){
-					alert(add.message);
-					initData();
-			    });
-			})	
-		})
-
-		// ==================动态删除和修改数据（删除）====================
-		$(function(){
-			// initData();
-			$("#waiter_tbl > tbody").on("click","a",function(){
-				switch(this.className){
-					// 实现删除功能
-					case "btn_del":
-					var url = "/waiter/deleteWaiterById";
-					var id = $(this).parents("tr").find("td:nth-child(1)").text();
-					console.log(id,"===");
-					var data = "id="+id;
-					// 调用封装的ajax进行交互
-					$.get(baseURL+url,data,function(del){
-						alert(del.message);
-						initData();
-					});
-					break;
-
-					// 实现修改功能
-					case "btn_upd":
-					var url = "/waiter/updateWaiter";
-					// 获取到tr中的值
-					var id = $(this).parents("tr").find("input").val();
-					var realname = $(this).parents("tr").find("td:nth-child(3)").text();
-					var telephone = $(this).parents("tr").find("td:nth-child(4)").text();
-					var idcard = $(this).parents("tr").find("td:nth-child(5)").text();
-					var status = $(this).parents("tr").find("td:nth-child(6)").text();
-					// 输出获取到的值
-					document.querySelector("input[name=realname]").value = realname;
-					document.querySelector("input[name=idcard]").value = idcard;
-					document.querySelector("input[name=status]").value = status;
-					initData();
-					break;
-					case "btn_info":
-					$(".waiter").load("./waiter-info.html");
-					initData();
-					break;
-				}
-			});
-		})
-	})
 </script>
-<div class="waiter">
-	员工管理
-	<div class="btns">
-		<div class="btn" id="btn_add">添加</div>
-		<div class="btn">批量添加</div>
-		<div class="btn">批量删除</div>
-	</div>
-	<div class="forms">
-		<form action="javascript:void(0)">
-			<input type="hidden" name="id">
-			<table>	
-				<tbody>	
-					<tr>
-						<td>姓名</td>
-						<td><input type="text" name="realname"></td>
-						<!-- <td></td> -->
-					</tr>
-					<tr>
-						<td>联系方式</td>
-						<td><input type="text" name="telephone"></td>
-						<!-- <td></td> -->
-					</tr>
-					<tr>
-						<td>卡号</td>
-						<td><input type="text" name="idcard"></td>
-						<!-- <td></td> -->
-					</tr>
-					<tr>
-						<td>状态</td>
-						<td><input type="textarea" name="status"></td>
-						<!-- <td></td> -->
-					</tr>
-					<tr>
-						<th colspan="3"><input type="submit" value="保存"></th>
-					</tr>
-				</tbody>
-			</table>
-		</form>
-	</div>
-	<table class="table" id="waiter_tbl">
-		<thead>
-			<tr>
-				<th>编号</th>
-				<th>头像</th>
-				<th>姓名</th>
-				<th>联系方式</th>
-				<th>卡号</th>
-				<th>状态</th>
-				<th>操作</th>
-			</tr>
-		</thead>
-		<tbody>
-			<!-- <tr class="none">
-				<td><input type="checkbox"></td>
-				<td></td>
-				<td></td>
-				<td></td>
-				<td></td>
-				<td></td>
-				<td>
-					<a class="btn_del" href="javascript:void(0);">删除</a>
-					<a class="btn_upd" href="javascript:void(0);">修改</a>
-					<a class="btn_detail" href="javascript:void(0);">详情</a>
-				</td>
-			</tr> -->
-		</tbody>
-	</table>
-</div>
+
+<body>
+    <!-- 添加和批量删除按钮 -->
+    <div class="waiter">
+        <br>
+        <div class="btn btn_add btn-dark text-white">添加</div>
+        <div class="btn btn_batch_del btn-dark text-white">批量删除</div>
+    </div>
+    <br>
+    <!-- / 添加和批量删除按钮 -->
+
+    <!-- 员工表格 -->
+    <table id="waiter_tbl" class="table table-bordered table-hover">
+        <thead>
+            <tr class="text-center">
+                <th>编号</th>
+                <th>头像</th>
+                <th>姓名</th>
+                <th>联系方式</th>
+                <th>卡号</th>
+                <th>状态</th>
+                <th>操作</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+    <!-- / 员工表格 -->
+
+    <!-- 模态框 -->
+    <div class="modal fade" id="waiterModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">添加员工信息</h5>
+            <button type="button" class="close" onclick="closeModal.call(this)">
+                <span aria-hidden="true">&times;</span>
+            </button>
+            </div>
+            <div class="modal-body">
+            <!-- 模态框内容 -->
+            <form id="waiter_form">
+                <!-- 姓名 -->
+                <div class="form-group row">
+                    <label for="input_realname" class="col-sm-2 text-right">姓名</label>
+                    <div class="col-sm-10">
+                        <input id="input_realname" class="form-control" type="text" name="realname" placeholder="请输入您的姓名">
+                    </div>
+                </div>
+                <!-- / 姓名 -->
+
+                <!-- 联系方式 -->
+                <div class="form-group row">
+                    <label class="col-sm-2 text-right" for="input_telephone">联系方式</label>
+                    <div class="col-sm-10">
+                        <input id="input_telephone" class="form-control" type="text" name="telephone">
+                    </div>
+                </div>
+                <!-- / 联系方式 -->
+
+                <!-- 卡号 -->
+                <div class="form-group row">
+                    <label class="col-sm-2 text-right" for="input_idcard">卡号</label>
+                    <div class="col-sm-10">
+                        <input id="input_idcard" class="form-control" type="text" name="idcard">
+                    </div>
+                </div>
+                <!-- / 卡号 -->
+            </form>
+            <!-- / 模态框内容 -->
+            </div>
+
+            <!-- 模态框底部 -->
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeModal.call(this)">Close</button>
+                <button type="button" class="btn btn-primary" onclick="submitWaiter()">Save changes</button>
+            </div>    
+             <!-- / 模态框底部结束 -->
+        </div>
+        </div>
+    </div>
+    <!-- /模态框 -->
+</body>

@@ -2,39 +2,38 @@
 <html lang="en">
 <head>
 	<meta charset="UTF-8">
-	<title>e洁家政服务</title>
+	<title>e洁家政</title>
 	<link rel="stylesheet" href="./css/common.css">
 	<link rel="stylesheet" href="./css/style.css">
+	<link rel="stylesheet" href="https://cdn.bootcss.com/font-awesome/5.10.2/css/all.css">
+	<link href="https://cdn.bootcss.com/twitter-bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
 	<script src="https://cdn.bootcss.com/jquery/3.4.1/jquery.min.js"></script>
+	<script src="https://cdn.bootcss.com/twitter-bootstrap/4.3.1/js/bootstrap.min.js"></script>
 	<script type="text/javascript" src="./js/index.js"></script>
 </head>
 <body>
-	<div class="container">
-		<!-- 左侧导航 -->
-		<div class="left">
-			<div class="title">e洁家政服务平台</div>
-			<ul class="left_nav">
-				<li url="./pages/customer.html"><a href="javascript:void(0)">顾客管理</a></li>
-				<li url="./pages/waiter.html"><a href="javascript:void(0)">员工管理</a></li>
-				<li url="./pages/category.html"><a href="javascript:void(0)">分类管理</a></li>
-				<li url="./pages/product.html"><a href="javascript:void(0)">产品管理</a></li>
-				<li url="./pages/order.html"><a href="javascript:void(0)">订单管理</a></li>
-				<li url="./pages/comment.html"><a href="javascript:void(0)">评论管理</a></li>
-			</ul>
-		</div>
-		<div class="right">
-			<div class="content">
-				<div class="mb_nav">
-					主页 / 顾客管理 / 地址管理
-				</div>
-				<div id="wrapper">
-					
+	<div class="container-fluid">
+		<div class="content row">
+			<!-- 左侧 -->
+			<div class="left col-2 bg-dark">
+				<ul>
+					<li class="text-white font-weight-bold text-center text-xl py-3 border-bottom">e洁家政</li>
+					<li class="row" style="line-height:2em;"><i class="col-5 fa fa-user text-right "></i><p class="col-7 text-left">顾客管理</p></li>
+					<li class="row"><i class="col-5 fa fa-users text-right"></i><p class="col-7 text-left">员工管理</p></li>
+					<li class="row"><i class="col-5 fa fa-map-marked-alt text-right"></i><p class="col-7 text-left">地址管理</p></li>
+					<li class="row"><i class="col-5 fa fa-clipboard-list text-right"></i><p class="col-7 text-left">产品管理</p></li>				
+					<li class="row"><i class="col-5 fa fa-align-justify text-right"></i><p class="col-7 text-left">栏目管理</p></li>
+					<li class="row"><i class="col-5 fa fa-clipboard-list text-right"></i><p class="col-7 text-left">评论管理</p></li>
+				</ul>
+			</div>
+			<!-- 右侧 -->
+			<div class="right col-10" style="overflow-y:auto; max-height:600px;">
+				<div class="wrapper rounded">
+			
 				</div>
 			</div>
 		</div>
-	</div>
-
-	
+    </div>	
 </body>
 </html>
 

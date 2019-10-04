@@ -1,7 +1,54 @@
-<style></style>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>评论管理</title>
+    <link rel="stylesheet" href="../bootstrap/css/bootstrap.css">
+    <script src="https://cdn.bootcss.com/jquery/3.4.1/jquery.min.js"></script>
+	<script type="text/javascript" src="../bootstrap/js/bootstrap.js"></script>
 <script>
-	
+	var baseURL = "http://134.175.100.63:6677/";
+	// ================初始化数据==============
+	function reloadData(){
+		var url = baseURL+"/comment/findAll";
+		$.get(url,function(result){
+			if(result.status === 200){
+				result.data.forEach(function(item){
+					$("#comment_tbl > tbody").append(`<tr class="text-center">
+						<td>
+							<input type="checkbox" value="`+item.id+`">
+						</td>
+						<td>`+item.content+`</td>
+						<td>`+item.commentTime+`</td>
+						<td>`+item.orderId+`</td>
+						<td>
+							<a href="javascript:void(0)">删除</a>
+							<a href="javascript:void(0)">修改</a>
+						</td>
+					</tr>`)
+				})			
+			}
+		})
+	}
+	reloadData();
 </script>
 <div class="comment">
-	评论管理
+	<div class="btns">
+		<br>
+		<div class="btn bg-dark text-white">添加</div>
+		<div class="btn bg-dark text-white">批量删除</div>
+	</div>
+	<br>
+	<!-- 表格 -->
+	<table id="comment_tbl" class="table table-bordered">
+		<thead>
+			<tr class="text-center">
+				<th>编号</th>
+				<th>内容</th>
+				<th>评论时间</th>
+				<th>订单编号</th>
+				<th>操作</th>
+			</tr>
+		</thead>
+		<tbody>
+			
+		</tbody>
+	</table>
 </div>
